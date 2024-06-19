@@ -7,12 +7,16 @@ import { SearchIcon } from "../icons/searchicon";
 import { BurguerButton } from "./burguer-button";
 import { NotificationsDropdown } from "./notifications-dropdown";
 import { UserDropdown } from "./user-dropdown";
+import { HouseIcon } from "../icons/breadcrumb/house-icon";
+import { usePathname } from "next/navigation";
 
 interface Props {
   children: React.ReactNode;
 }
 
 export const NavbarWrapper = ({ children }: Props) => {
+  const pathname = usePathname();
+  const displayPathname = pathname === "/" ? "" : pathname.replaceAll("/", " / ")
   return (
     <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
       <Navbar
@@ -51,18 +55,22 @@ export const NavbarWrapper = ({ children }: Props) => {
           <div className="max-md:hidden">
             <SupportIcon />
           </div>
-
-          <Link
-            href="https://github.com/Siumauricio/nextui-dashboard-template"
-            target={"_blank"}
-          >
-            <GithubIcon />
-          </Link>
           <NavbarContent>
             <UserDropdown />
           </NavbarContent>
         </NavbarContent>
       </Navbar>
+      {displayPathname && (
+        <ul className="flex lg:px-6 mt-6">
+          <li className="flex gap-2">
+            <HouseIcon />
+            <Link href={"/"}>
+              <span>Home</span>
+            </Link>
+            <span>{displayPathname}</span>
+          </li>
+        </ul>
+      )}
       {children}
     </div>
   );
