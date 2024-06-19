@@ -57,7 +57,7 @@ Install dependencies
 
 
 ```bash
-npm install
+pnpm install
 ```
 
 Start the server
@@ -65,7 +65,7 @@ Start the server
 
 
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 Now you can visit https://localhost:3000 in your browser.
