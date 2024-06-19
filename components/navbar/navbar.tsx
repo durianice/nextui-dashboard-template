@@ -16,7 +16,8 @@ interface Props {
 
 export const NavbarWrapper = ({ children }: Props) => {
   const pathname = usePathname();
-  const displayPathname = pathname === "/" ? "" : pathname.replaceAll("/", " / ")
+  const displayPathname =
+    pathname === "/" ? "" : pathname.replaceAll("/", " / ");
   return (
     <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
       <Navbar
@@ -71,7 +72,9 @@ export const NavbarWrapper = ({ children }: Props) => {
           </li>
         </ul>
       )}
-      {children}
+      <div className="lg:px-6 py-6 max-w-[95rem] mx-auto w-full flex flex-col gap-4">
+        {children}
+      </div>
     </div>
   );
 };

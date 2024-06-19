@@ -13,9 +13,7 @@ import { AddUser } from "./add-user";
 
 export const Accounts = () => {
   return (
-    <div className="my-6 lg:px-6 max-w-[95rem] mx-auto w-full flex flex-col gap-4">
-      
-
+    <>
       <h3 className="text-xl font-semibold">All Accounts</h3>
       <div className="flex justify-between flex-wrap gap-4 items-center">
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
@@ -41,6 +39,6 @@ export const Accounts = () => {
       <div className="max-w-[95rem] mx-auto w-full">
         <TableWrapper />
       </div>
-    </div>
+    </>
   );
 };

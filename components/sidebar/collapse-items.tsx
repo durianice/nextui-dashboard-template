@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { ChevronUpIcon } from "../icons/sidebar/chevron-up-icon";
 import { Accordion, AccordionItem } from "@nextui-org/react";
 import clsx from "clsx";
 import { SidebarItem } from "./sidebar-item";
+import { BottomIcon } from "../icons/sidebar/bottom-icon";
 
 interface Props {
   icon: React.ReactNode;
@@ -25,7 +25,7 @@ export const CollapseItems = ({ icon, items, title }: Props) => {
     <div className="flex gap-4 h-full items-center cursor-pointer">
       <Accordion className="px-0">
         <AccordionItem
-          indicator={<ChevronUpIcon />}
+          indicator={<BottomIcon />}
           classNames={{
             indicator: "data-[open=true]:-rotate-180",
             trigger:
@@ -42,7 +42,7 @@ export const CollapseItems = ({ icon, items, title }: Props) => {
             </div>
           }
         >
-          <div className="pl-12">
+          <div className="pl-8">
             {items.map((item, index) => (
               <SidebarItem
               key={index}

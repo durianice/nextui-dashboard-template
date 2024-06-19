@@ -19,6 +19,8 @@ import { FilterIcon } from "../icons/sidebar/filter-icon";
 import { useSidebarContext } from "../layout/layout-context";
 import { ChangeLogIcon } from "../icons/sidebar/changelog-icon";
 import { usePathname } from "next/navigation";
+import { AcmeIcon } from "../icons/acme-icon";
+import { BottomIcon } from "../icons/sidebar/bottom-icon";
 
 export const SidebarWrapper = () => {
   const pathname = usePathname();
@@ -35,7 +37,18 @@ export const SidebarWrapper = () => {
         })}
       >
         <div className={Sidebar.Header()}>
-          <CompaniesDropdown />
+          {/* <CompaniesDropdown /> */}
+          <div className="flex items-center gap-2">
+          <AcmeIcon />
+          <div className="flex flex-col gap-4">
+            <h3 className="text-xl font-medium m-0 text-default-900 -mb-4 whitespace-nowrap">
+              OpenAI
+            </h3>
+            <span className="text-xs font-medium text-default-500">
+              welcome
+            </span>
+          </div>
+        </div>
         </div>
         <div className="flex flex-col justify-between h-full">
           <div className={Sidebar.Body()}>
@@ -52,11 +65,6 @@ export const SidebarWrapper = () => {
                 icon={<AccountsIcon />}
                 href="accounts"
               />
-              <SidebarItem
-                isActive={pathname === "/payments"}
-                title="Payments"
-                icon={<PaymentsIcon />}
-              />
               <CollapseItems
                 icon={<BalanceIcon />}
                 items={[
@@ -68,39 +76,6 @@ export const SidebarWrapper = () => {
                 ]}
                 title="Balances"
               />
-              <SidebarItem
-                isActive={pathname === "/customers"}
-                title="Customers"
-                icon={<CustomersIcon />}
-              />
-              <SidebarItem
-                isActive={pathname === "/products"}
-                title="Products"
-                icon={<ProductsIcon />}
-              />
-              <SidebarItem
-                isActive={pathname === "/reports"}
-                title="Reports"
-                icon={<ReportsIcon />}
-              />
-            </SidebarMenu>
-
-            <SidebarMenu title="General">
-              <SidebarItem
-                isActive={pathname === "/developers"}
-                title="Developers"
-                icon={<DevIcon />}
-              />
-              <SidebarItem
-                isActive={pathname === "/view"}
-                title="View Test Data"
-                icon={<ViewIcon />}
-              />
-              <SidebarItem
-                isActive={pathname === "/settings"}
-                title="Settings"
-                icon={<SettingsIcon />}
-              />
             </SidebarMenu>
 
             <SidebarMenu title="Updates">
@@ -111,8 +86,7 @@ export const SidebarWrapper = () => {
               />
             </SidebarMenu>
           </div>
-          <div className={Sidebar.Footer()}>
-          </div>
+          <div className={Sidebar.Footer()}></div>
         </div>
       </div>
     </aside>
