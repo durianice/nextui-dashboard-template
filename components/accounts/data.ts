@@ -167,3 +167,5 @@ export const users = [
       email: 'kristen.cooper@example.com',
    },
 ];
+
+export type Users = typeof users[number]

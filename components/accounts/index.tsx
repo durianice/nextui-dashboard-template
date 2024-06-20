@@ -1,17 +1,28 @@
 "use client";
-import { Button, Input } from "@nextui-org/react";
-import Link from "next/link";
+import { Input } from "@nextui-org/react";
 import React from "react";
-import { DotsIcon } from "@/components/icons/accounts/dots-icon";
-import { ExportIcon } from "@/components/icons/accounts/export-icon";
 import { InfoIcon } from "@/components/icons/accounts/info-icon";
-import { TrashIcon } from "@/components/icons/accounts/trash-icon";
-import { HouseIcon } from "@/components/icons/breadcrumb/house-icon";
-import { SettingsIcon } from "@/components/icons/sidebar/settings-icon";
-import { TableWrapper } from "@/components/table/table";
+import { FetchResult, TableWrapper } from "@/components/table/table";
 import { AddUser } from "./add-user";
+import { users, columns, Users } from "./data";
+import { renderCell } from "./render-cell";
 
 export const Accounts = () => {
+  const tableRef = React.useRef(null);
+  const fetchDataMock = (
+    pageIndex: number,
+    pageSize: number
+  ): Promise<FetchResult<Users>> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const data = users.slice(
+          (pageIndex - 1) * pageSize,
+          pageIndex * pageSize
+        );
+        resolve({ list: data, total: Math.ceil(users.length / pageSize) });
+      }, 2000);
+    });
+  };
   return (
     <>
       <h3 className="text-xl font-semibold">All Accounts</h3>
@@ -24,20 +35,40 @@ export const Accounts = () => {
             }}
             placeholder="Search users"
           />
-          <SettingsIcon />
-          <TrashIcon />
           <InfoIcon />
-          <DotsIcon />
         </div>
         <div className="flex flex-row gap-3.5 flex-wrap">
           <AddUser />
-          <Button color="primary" startContent={<ExportIcon />}>
-            Export to CSV
-          </Button>
         </div>
       </div>
       <div className="max-w-[95rem] mx-auto w-full">
-        <TableWrapper />
+        <TableWrapper<Users>
+          columns={columns}
+          renderCell={renderCell}
+          fetchData={fetchDataMock}
+          handleAction={async ({ row, type }) => {
+            switch (type) {
+              case "delete":
+                return new Promise((resolve) => {
+                  setTimeout(() => {
+                    resolve("deleted");
+                  }, 1000);
+                });
+              case "submit":
+                return new Promise((resolve) => {
+                  setTimeout(() => {
+                    resolve("submitted");
+                  }, 1000);
+                });
+              default:
+                break;
+            }
+            
+          }}
+          handleClick={({ row, type }) => {
+            console.log(row, type);
+          }}
+        />
       </div>
     </>
   );

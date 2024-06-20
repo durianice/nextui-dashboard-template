@@ -3,25 +3,21 @@ import React from "react";
 import { DeleteIcon } from "../icons/table/delete-icon";
 import { EditIcon } from "../icons/table/edit-icon";
 import { EyeIcon } from "../icons/table/eye-icon";
-import { users } from "./data";
+import { Users } from "./data";
+import { renderCellProps } from "../table/table";
+import { EditUser } from "./edit-user";
 
-interface Props {
-  user: (typeof users)[number];
-  columnKey: string | React.Key;
-}
-
-export const RenderCell = ({ user, columnKey }: Props) => {
+export const renderCell = ({
+  row,
+  columnKey,
+  onClick,
+  action,
+}: renderCellProps<Users>): React.ReactNode => {
   // @ts-ignore
-  const cellValue = user[columnKey];
+  const cellValue = row[columnKey];
   switch (columnKey) {
     case "name":
-      return (
-        <User
-          name={cellValue}
-        >
-          {user.email}
-        </User>
-      );
+      return <User name={cellValue}>{row.email}</User>;
     case "role":
       return (
         <div>
@@ -29,7 +25,7 @@ export const RenderCell = ({ user, columnKey }: Props) => {
             <span>{cellValue}</span>
           </div>
           <div>
-            <span>{user.team}</span>
+            <span>{row.team}</span>
           </div>
         </div>
       );
@@ -55,25 +51,17 @@ export const RenderCell = ({ user, columnKey }: Props) => {
         <div className="flex items-center gap-4 ">
           <div>
             <Tooltip content="Details">
-              <button onClick={() => console.log("View user", user.id)}>
+              <button onClick={() => onClick({ row, type: "view" })}>
                 <EyeIcon size={20} fill="#979797" />
               </button>
             </Tooltip>
           </div>
           <div>
-            <Tooltip content="Edit user" color="secondary">
-              <button onClick={() => console.log("Edit user", user.id)}>
-                <EditIcon size={20} fill="#979797" />
-              </button>
-            </Tooltip>
+            <EditUser onSubmit={() => action({row, type: "submit"})} />
           </div>
           <div>
-            <Tooltip
-              content="Delete user"
-              color="danger"
-              onClick={() => console.log("Delete user", user.id)}
-            >
-              <button>
+            <Tooltip content="Delete user" color="danger">
+              <button onClick={() => action({ row, type: "delete" })}>
                 <DeleteIcon size={20} fill="#FF0080" />
               </button>
             </Tooltip>

@@ -13,10 +13,12 @@ export interface ProvidersProps {
 export function Providers({ children, themeProps }: ProvidersProps) {
   return (
     <NextUIProvider>
-      <NextThemesProvider defaultTheme="system" attribute="class" {...themeProps}>
-        <Layout>
-          {children}
-        </Layout>
+      <NextThemesProvider
+        defaultTheme="system"
+        attribute="class"
+        {...themeProps}
+      >
+        <Layout>{children}</Layout>
       </NextThemesProvider>
     </NextUIProvider>
   );
