@@ -52,7 +52,7 @@ export const TableWrapper = <T,>({
     try {
       const result = await fetchData(pageIndex, pageSize);
       setData(result.list);
-      setTotal(result.total);
+      setTotal(Math.ceil(result.total / pageSize));
       setIsLoading(false);
     } catch (error) {
       console.error(error);
@@ -67,70 +67,76 @@ export const TableWrapper = <T,>({
 
   return (
     <div className=" w-full flex flex-col gap-4">
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : (
-        <>
-          <Table aria-label="Example table with custom cells">
-            <TableHeader columns={columns}>
-              {(column) => (
-                <TableColumn
-                  key={column.uid}
-                  hideHeader={column.uid === "actions"}
-                  align={column.uid === "actions" ? "center" : "start"}
-                >
-                  {column.name}
-                </TableColumn>
+      <Table
+        aria-label="Example table with custom cells"
+        bottomContent={
+          total > 0 ? (
+            <div className="flex w-full justify-center">
+              <Pagination
+                showControls
+                total={total}
+                initialPage={pageIndex}
+                onChange={(page) => {
+                  setPageIndex(page);
+                }}
+              />
+            </div>
+          ) : null
+        }
+      >
+        <TableHeader columns={columns}>
+          {(column) => (
+            <TableColumn
+              key={column.uid}
+              align={column.uid === "actions" ? "center" : "start"}
+            >
+              {column.name}
+            </TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={data}
+          loadingState={isLoading ? "loading" : "idle"}
+          loadingContent={<LoadingSpinner />}
+          emptyContent={"No rows to display."}
+        >
+          {(item) => (
+            <TableRow>
+              {(columnKey) => (
+                <TableCell>
+                  {renderCell({
+                    row: item,
+                    columnKey,
+                    onClick: ({ row, type }) => {
+                      if (handleClick) {
+                        try {
+                          handleClick({ row, type });
+                        } catch (error) {
+                          console.error(error);
+                        }
+                      }
+                    },
+                    action: async ({ row, type }) => {
+                      if (handleAction) {
+                        try {
+                          setIsLoading(true);
+                          const resp = await handleAction({ row, type });
+                          console.log(resp);
+                          loadData();
+                        } catch (error) {
+                          console.error(error);
+                        } finally {
+                          setIsLoading(false);
+                        }
+                      }
+                    },
+                  })}
+                </TableCell>
               )}
-            </TableHeader>
-            <TableBody items={data}>
-              {(item) => (
-                <TableRow>
-                  {(columnKey) => (
-                    <TableCell>
-                      {renderCell({
-                        row: item,
-                        columnKey,
-                        onClick: ({ row, type }) => {
-                          if (handleClick) {
-                            try {
-                              handleClick({ row, type });
-                            } catch (error) {
-                              console.error(error);
-                            }
-                          }
-                        },
-                        action: async ({ row, type }) => {
-                          if (handleAction) {
-                            try {
-                              setIsLoading(true);
-                              const resp = await handleAction({ row, type });
-                              console.log(resp);
-                              loadData();
-                            } catch (error) {
-                              console.error(error);
-                            } finally {
-                              setIsLoading(false);
-                            }
-                          }
-                        },
-                      })}
-                    </TableCell>
-                  )}
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <Pagination
-            showControls
-            total={total}
-            initialPage={pageIndex}
-            onChange={(page) => {
-              setPageIndex(page);
-            }}
-          />
-        </>
-      )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };

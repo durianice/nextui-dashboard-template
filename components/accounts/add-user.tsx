@@ -1,3 +1,4 @@
+import { postJSON } from "@/util/request";
 import {
   Button,
   Input,
@@ -47,7 +48,16 @@ export const AddUser = () => {
                   <Button color="danger" variant="flat" onClick={onClose}>
                     Close
                   </Button>
-                  <Button color="primary" onPress={onClose}>
+                  <Button
+                    color="primary"
+                    onPress={async () => {
+                      const res = await postJSON("/api/members");
+                      console.log(res);
+                      if (res.ok) {
+                        onClose();
+                      }
+                    }}
+                  >
                     Add User
                   </Button>
                 </ModalFooter>

@@ -4,24 +4,19 @@ import React from "react";
 import { InfoIcon } from "@/components/icons/accounts/info-icon";
 import { FetchResult, TableWrapper } from "@/components/table/table";
 import { AddUser } from "./add-user";
-import { users, columns, Users } from "./data";
+import { columns } from "./data";
 import { renderCell } from "./render-cell";
+import { getJSON } from "@/util/request";
+import { Member } from "@/server/db/members";
 
 export const Accounts = () => {
   const tableRef = React.useRef(null);
-  const fetchDataMock = (
+  const fetchDataMock = async (
     pageIndex: number,
     pageSize: number
-  ): Promise<FetchResult<Users>> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const data = users.slice(
-          (pageIndex - 1) * pageSize,
-          pageIndex * pageSize
-        );
-        resolve({ list: data, total: Math.ceil(users.length / pageSize) });
-      }, 2000);
-    });
+  ): Promise<FetchResult<Member>> => {
+    const res = await getJSON("/api/members", { pageIndex, pageSize })
+    return res
   };
   return (
     <>
@@ -42,7 +37,7 @@ export const Accounts = () => {
         </div>
       </div>
       <div className="max-w-[95rem] mx-auto w-full">
-        <TableWrapper<Users>
+        <TableWrapper<Member>
           columns={columns}
           renderCell={renderCell}
           fetchData={fetchDataMock}
