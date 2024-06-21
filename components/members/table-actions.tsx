@@ -10,7 +10,7 @@ import {
 import React from "react";
 import { DeleteIcon } from "../icons/table/delete-icon";
 import { EyeIcon } from "../icons/table/eye-icon";
-import UserForm from "./user-form";
+import UserForm from "./form";
 import { TableWrapperMethods } from "../table/table";
 import toast from "react-hot-toast";
 

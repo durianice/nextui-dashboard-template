@@ -60,10 +60,10 @@ export const SidebarWrapper = () => {
             />
             <SidebarMenu title="Main Menu">
               <SidebarItem
-                isActive={pathname === "/accounts"}
-                title="Accounts"
+                isActive={pathname === "/members"}
+                title="Members"
                 icon={<AccountsIcon />}
-                href="accounts"
+                href="members"
               />
               <CollapseItems
                 icon={<BalanceIcon />}

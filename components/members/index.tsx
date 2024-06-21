@@ -1,5 +1,5 @@
 "use client";
-import { Input } from "@nextui-org/react";
+import { Input, Tooltip } from "@nextui-org/react";
 import React from "react";
 import { InfoIcon } from "@/components/icons/accounts/info-icon";
 import {
@@ -10,7 +10,7 @@ import {
 import { RenderCell } from "./render-cell";
 import { getJSON } from "@/util/request";
 import { Member } from "@/server/db/members";
-import UserForm from "./user-form";
+import UserForm from "./form";
 
 const columns = [
   { name: "NAME", uid: "username" },
@@ -20,7 +20,7 @@ const columns = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
-export const Accounts = () => {
+export const Members = () => {
   const tableRef = React.useRef<TableWrapperMethods>(null);
   const fetchDataMock = async (
     pageIndex: number,
@@ -31,7 +31,7 @@ export const Accounts = () => {
   };
   return (
     <>
-      <h3 className="text-xl font-semibold">All Accounts</h3>
+      <h3 className="text-xl font-semibold">All Members</h3>
       <div className="flex justify-between flex-wrap gap-4 items-center">
         <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
           <Input
@@ -39,9 +39,20 @@ export const Accounts = () => {
               input: "w-full",
               mainWrapper: "w-full",
             }}
-            placeholder="Search users"
+            placeholder="Search members"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                if (tableRef.current) {
+                  tableRef.current.loadData();
+                }
+              }
+            }}
           />
-          <InfoIcon />
+          <Tooltip content="Enter to start">
+            <button>
+              <InfoIcon />
+            </button>
+          </Tooltip>
         </div>
         <div className="flex flex-row gap-3.5 flex-wrap">
           <UserForm
