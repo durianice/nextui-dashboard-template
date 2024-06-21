@@ -10,10 +10,52 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import React from "react";
+import { SubmitHandler } from "react-hook-form";
+import { FormComponent } from "../form";
 
-export const AddUser = () => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+const fields = [
+  {
+    name: "username",
+    label: "Username",
+    validation: {
+      required: "Username is required",
+      pattern: {
+        value: /^[a-zA-Z0-9_]{3,20}$/i,
+        message: "Invalid username",
+      },
+    },
+  },
+  {
+    name: "nickName",
+    label: "Nick name",
+    validation: {
+      pattern: {
+        value: /^[a-zA-Z0-9_]{3,20}$/i,
+        message: "Invalid nick name",
+      },
+    },
+  },
+  {
+    name: "userid",
+    hidden: true,
+  },
+];
 
+export const AddUser = ({ onSuccess }: { onSuccess?: () => void }) => {
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const handleFormSubmitRef = React.useRef<() => void>(() => {});
+
+  const defaultValues = {
+    userid: Date.now(),
+  };
+
+  const onSubmit: SubmitHandler<any> = async (data) => {
+    const res = await postJSON("/api/members", { data });
+    if (res.ok) {
+      onClose();
+      onSuccess && onSuccess();
+    }
+  };
   return (
     <div>
       <>
@@ -32,16 +74,14 @@ export const AddUser = () => {
                   Add User
                 </ModalHeader>
                 <ModalBody>
-                  <Input label="Email" variant="bordered" />
-                  <Input label="First Name" variant="bordered" />
-                  <Input label="Last Name" variant="bordered" />
-                  <Input label="Phone Number" variant="bordered" />
-
-                  <Input label="Password" type="password" variant="bordered" />
-                  <Input
-                    label="Confirm Password"
-                    type="password"
-                    variant="bordered"
+                  <FormComponent
+                    fields={fields}
+                    onSubmit={onSubmit}
+                    formSubmit={(submitHandler) =>
+                      (handleFormSubmitRef.current = submitHandler)
+                    }
+                    showSubmitButton={false}
+                    defaultValues={defaultValues}
                   />
                 </ModalBody>
                 <ModalFooter>
@@ -50,12 +90,8 @@ export const AddUser = () => {
                   </Button>
                   <Button
                     color="primary"
-                    onPress={async () => {
-                      const res = await postJSON("/api/members");
-                      console.log(res);
-                      if (res.ok) {
-                        onClose();
-                      }
+                    onPress={() => {
+                      handleFormSubmitRef.current();
                     }}
                   >
                     Add User

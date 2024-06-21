@@ -2,21 +2,28 @@
 import { Input } from "@nextui-org/react";
 import React from "react";
 import { InfoIcon } from "@/components/icons/accounts/info-icon";
-import { FetchResult, TableWrapper } from "@/components/table/table";
+import { FetchResult, TableWrapperMethods, TableWrapperRef } from "@/components/table/table";
 import { AddUser } from "./add-user";
-import { columns } from "./data";
 import { renderCell } from "./render-cell";
 import { getJSON } from "@/util/request";
 import { Member } from "@/server/db/members";
 
+const columns = [
+  { name: "NAME", uid: "username" },
+  { name: "ROLE", uid: "role" },
+  { name: "EXP", uid: "expires" },
+  { name: "STATUS", uid: "isActive" },
+  { name: "ACTIONS", uid: "actions" },
+];
+
 export const Accounts = () => {
-  const tableRef = React.useRef(null);
+  const tableRef = React.useRef<TableWrapperMethods>(null);
   const fetchDataMock = async (
     pageIndex: number,
     pageSize: number
   ): Promise<FetchResult<Member>> => {
-    const res = await getJSON("/api/members", { pageIndex, pageSize })
-    return res
+    const res = await getJSON("/api/members", { pageIndex, pageSize });
+    return res;
   };
   return (
     <>
@@ -33,36 +40,21 @@ export const Accounts = () => {
           <InfoIcon />
         </div>
         <div className="flex flex-row gap-3.5 flex-wrap">
-          <AddUser />
+          <AddUser
+            onSuccess={() => {
+              if (tableRef.current) {
+                tableRef.current.loadData();
+              }
+            }}
+          />
         </div>
       </div>
       <div className="max-w-[95rem] mx-auto w-full">
-        <TableWrapper<Member>
+        <TableWrapperRef<Member>
+          ref={tableRef}
           columns={columns}
           renderCell={renderCell}
           fetchData={fetchDataMock}
-          handleAction={async ({ row, type }) => {
-            switch (type) {
-              case "delete":
-                return new Promise((resolve) => {
-                  setTimeout(() => {
-                    resolve("deleted");
-                  }, 1000);
-                });
-              case "submit":
-                return new Promise((resolve) => {
-                  setTimeout(() => {
-                    resolve("submitted");
-                  }, 1000);
-                });
-              default:
-                break;
-            }
-            
-          }}
-          handleClick={({ row, type }) => {
-            console.log(row, type);
-          }}
         />
       </div>
     </>

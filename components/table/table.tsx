@@ -23,24 +23,23 @@ export interface ActionProps<T> {
 export interface renderCellProps<T> {
   row: T;
   columnKey: React.Key;
-  onClick: ({ row, type }: ActionProps<T>) => void;
-  action: ({ row, type }: ActionProps<T>) => void;
+  ctx: TableWrapperMethods | null;
 }
-interface TableWrapperProps<T> {
+export interface TableWrapperProps<T> {
   columns: { uid: string; name: string }[];
   fetchData: (page: number, size: number) => Promise<FetchResult<T>>;
   renderCell: (props: renderCellProps<T>) => React.ReactNode;
-  handleClick?: ({ row, type }: ActionProps<T>) => void;
-  handleAction?: ({ row, type }: ActionProps<T>) => Promise<any>;
 }
 
-export const TableWrapper = <T,>({
-  columns,
-  fetchData,
-  renderCell,
-  handleAction,
-  handleClick,
-}: TableWrapperProps<T>) => {
+export interface TableWrapperMethods {
+  loadData: () => Promise<void>;
+}
+
+export const TableWrapper = <T,>(
+  props: TableWrapperProps<T>,
+  ref: React.RefObject<TableWrapperMethods>
+) => {
+  const { columns, fetchData, renderCell } = props;
   const [data, setData] = React.useState<T[]>([]);
   const [pageIndex, setPageIndex] = React.useState(1);
   const [pageSize, setPageSize] = React.useState(8);
@@ -48,8 +47,8 @@ export const TableWrapper = <T,>({
   const [isLoading, setIsLoading] = React.useState(true);
 
   const loadData = React.useCallback(async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const result = await fetchData(pageIndex, pageSize);
       setData(result.list);
       setTotal(Math.ceil(result.total / pageSize));
@@ -65,6 +64,10 @@ export const TableWrapper = <T,>({
     loadData();
   }, [loadData]);
 
+  React.useImperativeHandle(ref, () => ({
+    loadData,
+  }));
+
   return (
     <div className=" w-full flex flex-col gap-4">
       <Table
@@ -75,7 +78,7 @@ export const TableWrapper = <T,>({
               <Pagination
                 showControls
                 total={total}
-                initialPage={pageIndex}
+                initialPage={1}
                 onChange={(page) => {
                   setPageIndex(page);
                 }}
@@ -102,37 +105,17 @@ export const TableWrapper = <T,>({
         >
           {(item) => (
             <TableRow>
-              {(columnKey) => (
-                <TableCell>
-                  {renderCell({
-                    row: item,
-                    columnKey,
-                    onClick: ({ row, type }) => {
-                      if (handleClick) {
-                        try {
-                          handleClick({ row, type });
-                        } catch (error) {
-                          console.error(error);
-                        }
-                      }
-                    },
-                    action: async ({ row, type }) => {
-                      if (handleAction) {
-                        try {
-                          setIsLoading(true);
-                          const resp = await handleAction({ row, type });
-                          console.log(resp);
-                          loadData();
-                        } catch (error) {
-                          console.error(error);
-                        } finally {
-                          setIsLoading(false);
-                        }
-                      }
-                    },
-                  })}
-                </TableCell>
-              )}
+              {(columnKey) => {
+                return (
+                  <TableCell>
+                    {renderCell({
+                      row: item,
+                      columnKey,
+                      ctx: ref.current,
+                    })}
+                  </TableCell>
+                );
+              }}
             </TableRow>
           )}
         </TableBody>
@@ -140,3 +123,11 @@ export const TableWrapper = <T,>({
     </div>
   );
 };
+
+declare module "react" {
+  function forwardRef<T, P = {}>(
+    render: (props: P, ref: RefObject<T>) => React.ReactElement | null
+  ): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
+}
+
+export const TableWrapperRef = React.forwardRef(TableWrapper);

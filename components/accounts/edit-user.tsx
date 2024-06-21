@@ -12,11 +12,58 @@ import {
 import React from "react";
 import { EditIcon } from "../icons/table/edit-icon";
 import LoadingSpinner from "../common/spinner";
+import { FormComponent } from "../form";
+import { SubmitHandler } from "react-hook-form";
+import { putJSON } from "@/util/request";
 
-export const EditUser = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+const fields = [
+  {
+    name: "username",
+    label: "Username",
+    validation: {
+      required: "Username is required",
+      pattern: {
+        value: /^[a-zA-Z0-9_]{3,20}$/i,
+        message: "Invalid username",
+      },
+    },
+  },
+  {
+    name: "nickName",
+    label: "Nick name",
+    validation: {
+      pattern: {
+        value: /^[a-zA-Z0-9_]{3,20}$/i,
+        message: "Invalid nick name",
+      },
+    },
+  },
+];
+
+export const EditUser = <T,>({
+  onSuccess,
+  row,
+}: {
+  onSuccess?: (data: any) => void;
+  row: T;
+}) => {
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleFormSubmitRef = React.useRef<() => void>(() => {});
+
+  const defaultValues = { ...row } as any;
+
+  const onSubmit: SubmitHandler<any> = async (data) => {
+    const body = { ...row, ...data };
+    console.log(body);
+    const res = await putJSON("/api/members", { data: body });
+    if (res.ok) {
+      onClose();
+      onSuccess && onSuccess(body);
+    }
+  };
 
   return (
     <div>
@@ -38,27 +85,15 @@ export const EditUser = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
                   Edit User
                 </ModalHeader>
                 <ModalBody>
-                  {isLoading ? (
-                    <LoadingSpinner />
-                  ) : (
-                    <>
-                      <Input label="Email" variant="bordered" />
-                      <Input label="First Name" variant="bordered" />
-                      <Input label="Last Name" variant="bordered" />
-                      <Input label="Phone Number" variant="bordered" />
-
-                      <Input
-                        label="Password"
-                        type="password"
-                        variant="bordered"
-                      />
-                      <Input
-                        label="Confirm Password"
-                        type="password"
-                        variant="bordered"
-                      />
-                    </>
-                  )}
+                  <FormComponent
+                    fields={fields}
+                    onSubmit={onSubmit}
+                    formSubmit={(submitHandler) =>
+                      (handleFormSubmitRef.current = submitHandler)
+                    }
+                    showSubmitButton={false}
+                    defaultValues={defaultValues}
+                  />
                 </ModalBody>
                 <ModalFooter>
                   <Button color="danger" variant="flat" onClick={onClose}>
@@ -68,13 +103,7 @@ export const EditUser = ({ onSubmit }: { onSubmit: (data: any) => void }) => {
                     isLoading={isLoading}
                     color="primary"
                     onPress={() => {
-                      // mock fetch
-                      setIsLoading(true);
-                      setTimeout(() => {
-                        setIsLoading(false);
-                        onClose();
-                        onSubmit && onSubmit({ data: 666 });
-                      }, 2000);
+                      handleFormSubmitRef.current();
                     }}
                   >
                     Edit User

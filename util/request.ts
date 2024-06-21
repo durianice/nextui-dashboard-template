@@ -1,11 +1,23 @@
-export async function postJSON(url: string, data: Record<string, any> = {}) {
+async function fetchJSON(
+  url: string,
+  method: string,
+  data?: Record<string, any>,
+  params?: Record<string, any>
+) {
   try {
-    const res = await fetch(url, {
-      method: "POST",
+    let fullUrl = url;
+
+    if (params) {
+      const queryString = new URLSearchParams(params).toString();
+      fullUrl = `${url}?${queryString}`;
+    }
+
+    const res = await fetch(fullUrl, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data),
+      body: data ? JSON.stringify(data) : undefined,
     });
 
     if (!res.ok) {
@@ -14,31 +26,23 @@ export async function postJSON(url: string, data: Record<string, any> = {}) {
 
     return await res.json();
   } catch (error) {
-    console.error("Error in POST fetch:", error);
+    console.error(`Error in ${method} fetch:`, error);
     throw error;
   }
 }
 
+export async function postJSON(url: string, data: Record<string, any> = {}) {
+  return fetchJSON(url, "POST", data);
+}
+
 export async function getJSON(url: string, params: Record<string, any> = {}) {
-  try {
-    // Convert params object to query string
-    const queryString = new URLSearchParams(params).toString();
-    const fullUrl = `${url}?${queryString}`;
+  return fetchJSON(url, "GET", undefined, params);
+}
 
-    const res = await fetch(fullUrl, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+export async function putJSON(url: string, data: Record<string, any> = {}) {
+  return fetchJSON(url, "PUT", data);
+}
 
-    if (!res.ok) {
-      throw new Error(`API response status: ${res.status}`);
-    }
-
-    return await res.json();
-  } catch (error) {
-    console.error("Error in GET fetch:", error);
-    throw error;
-  }
+export async function deleteJSON(url: string, data: Record<string, any> = {}) {
+  return fetchJSON(url, "DELETE", data);
 }

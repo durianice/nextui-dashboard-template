@@ -5,12 +5,12 @@ import { EyeIcon } from "../icons/table/eye-icon";
 import { renderCellProps } from "../table/table";
 import { EditUser } from "./edit-user";
 import { Member } from "@/server/db/members";
+import { deleteJSON, putJSON } from "@/util/request";
 
 export const renderCell = ({
   row,
   columnKey,
-  onClick,
-  action,
+  ctx,
 }: renderCellProps<Member>): React.ReactNode => {
   // @ts-ignore
   const cellValue = row[columnKey];
@@ -31,17 +31,31 @@ export const renderCell = ({
         <div className="flex items-center gap-4 justify-center">
           <div>
             <Tooltip content="Details">
-              <button onClick={() => onClick({ row, type: "view" })}>
+              <button onClick={() => console.info(row)}>
                 <EyeIcon size={20} fill="#979797" />
               </button>
             </Tooltip>
           </div>
           <div>
-            <EditUser onSubmit={() => action({ row, type: "submit" })} />
+            <EditUser<Member>
+              row={row}
+              onSuccess={async () => {
+                if (ctx) {
+                  await ctx.loadData();
+                }
+              }}
+            />
           </div>
           <div>
             <Tooltip content="Delete user" color="danger">
-              <button onClick={() => action({ row, type: "delete" })}>
+              <button
+                onClick={async () => {
+                  await deleteJSON("/api/members", { id: row.id });
+                  if (ctx) {
+                    await ctx.loadData();
+                  }
+                }}
+              >
                 <DeleteIcon size={20} fill="#FF0080" />
               </button>
             </Tooltip>
