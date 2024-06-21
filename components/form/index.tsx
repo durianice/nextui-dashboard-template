@@ -3,6 +3,7 @@ import React from "react";
 import { useForm, SubmitHandler, FieldError } from "react-hook-form";
 
 interface FieldConfig {
+  readOnly?: boolean;
   name: keyof IFormInput;
   label?: string;
   validation?: any;
@@ -20,6 +21,7 @@ interface FormComponentProps {
   formSubmit: (submitHandler: () => void) => void;
   showSubmitButton?: boolean;
   defaultValues?: Partial<IFormInput>;
+  readOnly?: boolean;
 }
 
 const FormComponent: React.FC<FormComponentProps> = ({
@@ -28,6 +30,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
   formSubmit,
   showSubmitButton = true,
   defaultValues = {},
+  readOnly,
 }) => {
   const {
     register,
@@ -59,6 +62,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
               {...register(field.name as string, field?.validation)}
               type={field.type || "text"}
               variant="bordered"
+              readOnly={readOnly || field.readOnly}
             />
             {errors[field.name] && (
               <span className="text-[#F31260] text-base ml-1">

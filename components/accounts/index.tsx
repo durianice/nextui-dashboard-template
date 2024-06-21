@@ -2,11 +2,15 @@
 import { Input } from "@nextui-org/react";
 import React from "react";
 import { InfoIcon } from "@/components/icons/accounts/info-icon";
-import { FetchResult, TableWrapperMethods, TableWrapperRef } from "@/components/table/table";
-import { AddUser } from "./add-user";
-import { renderCell } from "./render-cell";
+import {
+  FetchResult,
+  TableWrapperMethods,
+  TableWrapperRef,
+} from "@/components/table/table";
+import { RenderCell } from "./render-cell";
 import { getJSON } from "@/util/request";
 import { Member } from "@/server/db/members";
+import UserForm from "./user-form";
 
 const columns = [
   { name: "NAME", uid: "username" },
@@ -40,7 +44,8 @@ export const Accounts = () => {
           <InfoIcon />
         </div>
         <div className="flex flex-row gap-3.5 flex-wrap">
-          <AddUser
+          <UserForm
+            mode="add"
             onSuccess={() => {
               if (tableRef.current) {
                 tableRef.current.loadData();
@@ -53,7 +58,7 @@ export const Accounts = () => {
         <TableWrapperRef<Member>
           ref={tableRef}
           columns={columns}
-          renderCell={renderCell}
+          renderCell={RenderCell}
           fetchData={fetchDataMock}
         />
       </div>

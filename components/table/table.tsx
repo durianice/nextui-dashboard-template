@@ -28,7 +28,7 @@ export interface renderCellProps<T> {
 export interface TableWrapperProps<T> {
   columns: { uid: string; name: string }[];
   fetchData: (page: number, size: number) => Promise<FetchResult<T>>;
-  renderCell: (props: renderCellProps<T>) => React.ReactNode;
+  renderCell: (props: renderCellProps<T>) => React.ReactNode | JSX.Element;
 }
 
 export interface TableWrapperMethods {

@@ -40,7 +40,7 @@ export const safyDeleteById = async (id: number) =>
     .returning({ id: members.id, username: members.username });
 
 export const deleteById = async (id: number) =>
-  await db.delete(members).where(eq(members.id, id));
+  await db.delete(members).where(eq(members.id, id)).returning({ deletedId: members.id });;
 
 export const activate = async (id: number) =>
   await db

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { Providers } from "./providers";
 import { fontSans } from '@/config/fonts';
 import clsx from "clsx";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: 'Panel',
@@ -20,6 +21,7 @@ export default function RootLayout({
         <Providers>
           {children}
         </Providers>
+        <Toaster />
       </body>
     </html>
   )

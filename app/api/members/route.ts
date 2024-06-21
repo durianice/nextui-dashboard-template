@@ -41,6 +41,10 @@ export async function DELETE(request: Request) {
   if (!id) {
     throw new Error("ID is required for delete");
   }
-  await deleteById(id);
+  const res = await deleteById(id);
+  if (!res.length) {
+    throw new Error("Failed to delete");
+    // return Response.json({ ok: false });
+  }
   return Response.json({ ok: true });
 }
