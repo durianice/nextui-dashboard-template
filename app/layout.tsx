@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning={true}>
       <body className={clsx("font-sans antialiased", fontSans.className)}>
-        <NextTopLoader color="#7828C8" />
+        <NextTopLoader color="#7828C8" showSpinner={false} shadow={false} zIndex={9999} />
         <Providers>{children}</Providers>
         <Toaster />
       </body>
