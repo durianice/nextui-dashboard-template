@@ -27,7 +27,7 @@ export const SidebarWrapper = () => {
   const { collapsed, setCollapsed } = useSidebarContext();
 
   return (
-    <aside className="h-screen z-[20] sticky top-0">
+    <aside className="h-screen z-[999] sticky top-0">
       {collapsed ? (
         <div className={Sidebar.Overlay()} onClick={setCollapsed} />
       ) : null}
@@ -50,7 +50,7 @@ export const SidebarWrapper = () => {
           </div>
         </div>
         </div>
-        <div className="flex flex-col justify-between h-full">
+        <div className="flex flex-col justify-between">
           <div className={Sidebar.Body()}>
             <SidebarItem
               title="Home"

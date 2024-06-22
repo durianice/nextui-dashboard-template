@@ -123,7 +123,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
           </div>
         ))}
       {showSubmitButton && (
-        <Button color="primary" type="submit">
+        <Button color="secondary" type="submit">
           Submit
         </Button>
       )}

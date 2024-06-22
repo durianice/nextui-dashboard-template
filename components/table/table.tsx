@@ -27,7 +27,11 @@ export interface renderCellProps<T> {
 }
 export interface TableWrapperProps<T> {
   columns: { uid: string; name: string }[];
-  fetchData: (page: number, size: number, params?: Partial<T>) => Promise<FetchResult<T>>;
+  fetchData: (
+    page: number,
+    size: number,
+    params?: Partial<T>
+  ) => Promise<FetchResult<T>>;
   renderCell: (props: renderCellProps<T>) => React.ReactNode | JSX.Element;
 }
 
@@ -64,7 +68,9 @@ export const TableWrapper = <T,>(
 
   const filterData = React.useCallback((params: Partial<T>) => {
     const filteredParams = Object.fromEntries(
-      Object.entries(params).filter(([key, value]) => value !== undefined && value !== null && value !== '')
+      Object.entries(params).filter(
+        ([key, value]) => value !== undefined && value !== null && value !== ""
+      )
     );
     setFilterParams(filteredParams as Partial<T>);
   }, []);
@@ -75,7 +81,7 @@ export const TableWrapper = <T,>(
 
   React.useImperativeHandle(ref, () => ({
     loadData,
-    filterData
+    filterData,
   }));
 
   return (
@@ -86,6 +92,7 @@ export const TableWrapper = <T,>(
           total > 0 ? (
             <div className="flex w-full justify-center">
               <Pagination
+                color="secondary"
                 showControls
                 total={total}
                 initialPage={1}

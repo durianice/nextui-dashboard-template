@@ -153,7 +153,7 @@ const UserForm = ({ mode, onSuccess, row }: UserFormProps<Member>) => {
             </button>
           </Tooltip>
         ) : (
-          <Button onPress={onOpen} color="primary">
+          <Button onPress={onOpen} color="secondary">
             New
           </Button>
         )}
@@ -186,7 +186,7 @@ const UserForm = ({ mode, onSuccess, row }: UserFormProps<Member>) => {
                   </Button>
                   <Button
                     isLoading={isLoading}
-                    color="primary"
+                    color="secondary"
                     onPress={() => {
                       handleFormSubmitRef.current();
                     }}
