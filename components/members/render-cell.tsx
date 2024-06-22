@@ -3,6 +3,7 @@ import React from "react";
 import { renderCellProps } from "../table/table";
 import { Member } from "@/server/db/members";
 import TableActions from "./table-actions";
+import { convertTimestampToDate } from "@/util/tools";
 
 export const RenderCell = ({
   row,
@@ -14,6 +15,8 @@ export const RenderCell = ({
   switch (columnKey) {
     case "username":
       return <User name={cellValue}>{cellValue}</User>;
+    case "expires":
+      return <span>{convertTimestampToDate(cellValue)}</span>;
     case "isActive":
       return (
         <Chip size="sm" variant="flat" color={cellValue ? "success" : "danger"}>

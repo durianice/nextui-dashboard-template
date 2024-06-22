@@ -1,17 +1,34 @@
 import { Button, Input } from "@nextui-org/react";
 import React from "react";
-import { useForm, SubmitHandler, FieldError } from "react-hook-form";
+import {
+  useForm,
+  SubmitHandler,
+  FieldError,
+  RegisterOptions,
+  Controller,
+  Control,
+} from "react-hook-form";
+
+export interface RenderItemProps {
+  readOnly?: boolean;
+  label?: string;
+  field: any;
+  value?: any;
+}
 
 interface FieldConfig {
   readOnly?: boolean;
   name: keyof IFormInput;
   label?: string;
-  validation?: any;
+  validation?: RegisterOptions<IFormInput, string> | undefined;
   type?: string;
   hidden?: boolean;
+  render?: (props: RenderItemProps & { field: any }) => React.ReactElement;
+  format?: (value: any) => any; // 提交时格式化
+  parse?: (value: any) => any; // 回显时格式化
 }
 
-interface IFormInput {
+export interface IFormInput {
   [key: string]: any;
 }
 
@@ -33,20 +50,43 @@ const FormComponent: React.FC<FormComponentProps> = ({
   readOnly,
 }) => {
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
     setValue,
-  } = useForm<IFormInput>();
+  } = useForm<IFormInput>({
+    defaultValues,
+  });
+
+  const formatSubmitData = React.useCallback(
+    (data: IFormInput) => {
+      const formattedData: IFormInput = { ...data };
+      fields.forEach((field) => {
+        if (field.format && data[field.name] !== undefined) {
+          formattedData[field.name] = field.format(data[field.name]);
+        }
+      });
+      return formattedData;
+    },
+    [fields]
+  );
 
   React.useEffect(() => {
-    formSubmit(handleSubmit(onSubmit));
-    fields.forEach((field) => {
-      if (defaultValues[field.name] !== undefined) {
-        setValue(field.name as string, defaultValues[field.name]);
-      }
-    });
-  }, [defaultValues, fields, formSubmit, handleSubmit, onSubmit, setValue]);
+    formSubmit(
+      handleSubmit((data) => {
+        const formattedData = formatSubmitData(data);
+        onSubmit(formattedData);
+      })
+    );
+  }, [
+    defaultValues,
+    fields,
+    formSubmit,
+    formatSubmitData,
+    handleSubmit,
+    onSubmit,
+    setValue,
+  ]);
 
   return (
     <form
@@ -57,13 +97,24 @@ const FormComponent: React.FC<FormComponentProps> = ({
         .filter(({ hidden }) => !hidden)
         .map((field) => (
           <div key={field.name as string}>
-            <Input
-              label={field?.label || "Label"}
-              {...register(field.name as string, field?.validation)}
-              type={field.type || "text"}
-              variant="bordered"
-              readOnly={readOnly || field.readOnly}
-            />
+            {
+              <Controller
+                name={field.name as string}
+                control={control}
+                rules={field.validation}
+                render={({ field: controllerField }) => {
+                  return field.render ? (
+                    field.render({
+                      readOnly: readOnly || field.readOnly,
+                      label: field.label,
+                      field: controllerField,
+                    })
+                  ) : (
+                    <>{field?.label}</>
+                  );
+                }}
+              />
+            }
             {errors[field.name] && (
               <span className="text-[#F31260] text-base ml-1">
                 {(errors[field.name] as FieldError)?.message}
@@ -81,3 +132,27 @@ const FormComponent: React.FC<FormComponentProps> = ({
 };
 
 export { FormComponent };
+
+// 调用方式：
+const fields = [
+  {
+    name: "username",
+    label: "Username",
+    validation: {
+      required: "Username is required",
+      pattern: {
+        value: /^[a-zA-Z0-9_]{3,20}$/i,
+        message: "Invalid username",
+      },
+    },
+    render: ({ field, readOnly, label }: RenderItemProps & { field: any }) => (
+      <Input
+        isRequired
+        {...field}
+        variant="bordered"
+        readOnly={readOnly}
+        label={label}
+      />
+    ),
+  },
+];

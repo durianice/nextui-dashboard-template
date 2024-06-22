@@ -1,5 +1,5 @@
 "use client";
-import { Input, Tooltip } from "@nextui-org/react";
+import { Button, Input, Tooltip } from "@nextui-org/react";
 import React from "react";
 import { InfoIcon } from "@/components/icons/accounts/info-icon";
 import {
@@ -20,14 +20,33 @@ const columns = [
   { name: "ACTIONS", uid: "actions" },
 ];
 
+const fetchData = async (
+  pageIndex: number,
+  pageSize: number,
+  params?: Partial<Member>
+): Promise<FetchResult<Member>> => {
+  const res = await getJSON("/api/members", { pageIndex, pageSize, ...params });
+  return res;
+};
+
 export const Members = () => {
-  const tableRef = React.useRef<TableWrapperMethods>(null);
-  const fetchDataMock = async (
-    pageIndex: number,
-    pageSize: number
-  ): Promise<FetchResult<Member>> => {
-    const res = await getJSON("/api/members", { pageIndex, pageSize });
-    return res;
+  const [membersFilter, setMembersFilter] = React.useState("");
+  const tableRef = React.useRef<TableWrapperMethods<Member>>(null);
+  const filterData = (reset: boolean = false) => {
+    if (!membersFilter) return;
+    if (tableRef.current) {
+      const params = reset ? {} : { username: membersFilter };
+      tableRef.current.filterData(params);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      filterData();
+    }
+  };
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    filterData();
   };
   return (
     <>
@@ -39,20 +58,28 @@ export const Members = () => {
               input: "w-full",
               mainWrapper: "w-full",
             }}
-            placeholder="Search members"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                if (tableRef.current) {
-                  tableRef.current.loadData();
-                }
-              }
-            }}
+            placeholder="Member"
+            value={membersFilter}
+            onChange={(e) => setMembersFilter(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
           <Tooltip content="Enter to start">
             <button>
               <InfoIcon />
             </button>
           </Tooltip>
+          <Button color="secondary" onClick={handleClick}>
+            Filter
+          </Button>
+          <Button
+            color="default"
+            onClick={() => {
+              setMembersFilter("");
+              filterData(true);
+            }}
+          >
+            Reset
+          </Button>
         </div>
         <div className="flex flex-row gap-3.5 flex-wrap">
           <UserForm
@@ -70,7 +97,7 @@ export const Members = () => {
           ref={tableRef}
           columns={columns}
           renderCell={RenderCell}
-          fetchData={fetchDataMock}
+          fetchData={fetchData}
         />
       </div>
     </>

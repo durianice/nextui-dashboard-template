@@ -23,21 +23,22 @@ export interface ActionProps<T> {
 export interface renderCellProps<T> {
   row: T;
   columnKey: React.Key;
-  ctx: TableWrapperMethods | null;
+  ctx: TableWrapperMethods<T> | null;
 }
 export interface TableWrapperProps<T> {
   columns: { uid: string; name: string }[];
-  fetchData: (page: number, size: number) => Promise<FetchResult<T>>;
+  fetchData: (page: number, size: number, params?: Partial<T>) => Promise<FetchResult<T>>;
   renderCell: (props: renderCellProps<T>) => React.ReactNode | JSX.Element;
 }
 
-export interface TableWrapperMethods {
+export interface TableWrapperMethods<T> {
   loadData: () => Promise<void>;
+  filterData: (params: Partial<T>) => void;
 }
 
 export const TableWrapper = <T,>(
   props: TableWrapperProps<T>,
-  ref: React.RefObject<TableWrapperMethods>
+  ref: React.RefObject<TableWrapperMethods<T>>
 ) => {
   const { columns, fetchData, renderCell } = props;
   const [data, setData] = React.useState<T[]>([]);
@@ -45,11 +46,12 @@ export const TableWrapper = <T,>(
   const [pageSize, setPageSize] = React.useState(8);
   const [total, setTotal] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [filterParams, setFilterParams] = React.useState<Partial<T>>({} as T);
 
   const loadData = React.useCallback(async () => {
     try {
       setIsLoading(true);
-      const result = await fetchData(pageIndex, pageSize);
+      const result = await fetchData(pageIndex, pageSize, filterParams);
       setData(result.list);
       setTotal(Math.ceil(result.total / pageSize));
       setIsLoading(false);
@@ -58,7 +60,14 @@ export const TableWrapper = <T,>(
     } finally {
       setIsLoading(false);
     }
-  }, [fetchData, pageIndex, pageSize]);
+  }, [fetchData, filterParams, pageIndex, pageSize]);
+
+  const filterData = React.useCallback((params: Partial<T>) => {
+    const filteredParams = Object.fromEntries(
+      Object.entries(params).filter(([key, value]) => value !== undefined && value !== null && value !== '')
+    );
+    setFilterParams(filteredParams as Partial<T>);
+  }, []);
 
   React.useEffect(() => {
     loadData();
@@ -66,6 +75,7 @@ export const TableWrapper = <T,>(
 
   React.useImperativeHandle(ref, () => ({
     loadData,
+    filterData
   }));
 
   return (

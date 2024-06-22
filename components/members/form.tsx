@@ -1,5 +1,6 @@
 import {
   Button,
+  DatePicker,
   Input,
   Modal,
   ModalBody,
@@ -12,38 +13,20 @@ import {
 import React from "react";
 import { EditIcon } from "../icons/table/edit-icon";
 import LoadingSpinner from "../common/spinner";
-import { FormComponent } from "../form";
+import { FormComponent, IFormInput, RenderItemProps } from "../form";
 import { SubmitHandler } from "react-hook-form";
 import { putJSON, postJSON } from "@/util/request";
 import toast from "react-hot-toast";
-
-const fields = [
-  {
-    name: "username",
-    label: "Username",
-    validation: {
-      required: "Username is required",
-      pattern: {
-        value: /^[a-zA-Z0-9_]{3,20}$/i,
-        message: "Invalid username",
-      },
-    },
-  },
-  {
-    name: "nickName",
-    label: "Nick name",
-    validation: {
-      pattern: {
-        value: /^[a-zA-Z0-9_]{3,20}$/i,
-        message: "Invalid nick name",
-      },
-    },
-  },
-  {
-    name: "userid",
-    hidden: true,
-  },
-];
+import {
+  parseDate,
+  getLocalTimeZone,
+  CalendarDateTime,
+  CalendarDate,
+  ZonedDateTime,
+} from "@internationalized/date";
+import { useLocale, useDateFormatter } from "@react-aria/i18n";
+import { convertTimestampToDate } from "@/util/tools";
+import { Member } from "@/server/db/members";
 
 interface UserFormProps<T> {
   mode: "add" | "edit";
@@ -51,13 +34,75 @@ interface UserFormProps<T> {
   row?: T;
 }
 
-const UserForm = <T,>({ mode, onSuccess, row }: UserFormProps<T>) => {
+const UserForm = ({ mode, onSuccess, row }: UserFormProps<Member>) => {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [isLoading, setIsLoading] = React.useState(false);
   const handleFormSubmitRef = React.useRef<() => void>(() => {});
 
+  let formatter = useDateFormatter({ dateStyle: "short" });
+
+  const fields = React.useMemo(() => {
+    return [
+      {
+        name: "username",
+        label: "Username",
+        validation: {
+          required: "Username is required",
+          pattern: {
+            value: /^[a-zA-Z0-9_]{3,20}$/i,
+            message: "Invalid username",
+          },
+        },
+        render: ({ field, ...props }: any) => (
+          <Input isRequired {...props} {...field} variant="bordered" />
+        ),
+      },
+      {
+        name: "nickName",
+        label: "Nick name",
+        validation: {
+          pattern: {
+            value: /^[a-zA-Z0-9_]{3,20}$/i,
+            message: "Invalid nick name",
+          },
+        },
+        render: ({ field, ...props }: any) => (
+          <Input {...props} {...field} variant="bordered" />
+        ),
+      },
+      {
+        name: "expires",
+        label: "Expires",
+        validation: {
+          required: "Expires is required",
+        },
+        format: (value: any) => {
+          console.log(formatter.format(value.toDate(getLocalTimeZone())));
+          return value.toDate(getLocalTimeZone()).getTime() ?? 0;
+        },
+        render: ({ field, ...props }: any) => (
+          <DatePicker {...props} {...field} variant="bordered" isRequired />
+        ),
+      },
+      {
+        name: "userid",
+        hidden: true,
+      },
+    ];
+  }, [formatter]);
+
   const defaultValues = React.useMemo(() => {
-    return mode === "edit" ? { ...row } : ({ userid: Date.now() } as any);
+    return mode === "edit"
+      ? {
+          ...row,
+          expires: parseDate(convertTimestampToDate(row ? row.expires : 0)),
+        }
+      : ({
+          userid: Date.now(),
+          username: "",
+          expires: null,
+          nickName: "",
+        } as IFormInput);
   }, [mode, row]);
 
   const onSubmit: SubmitHandler<any> = async (data) => {

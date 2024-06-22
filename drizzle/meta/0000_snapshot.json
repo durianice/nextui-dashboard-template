@@ -1,5 +1,5 @@
 {
-  "id": "8ff6ca4b-fb3a-4327-87dd-ccc10f7be306",
+  "id": "e2805990-d8c8-49db-9ad5-fffff081d7b5",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -34,7 +34,7 @@
         },
         "expires_ts": {
           "name": "expires_ts",
-          "type": "integer",
+          "type": "bigint",
           "primaryKey": false,
           "notNull": true,
           "default": 0
@@ -53,6 +53,13 @@
           "primaryKey": false,
           "notNull": false,
           "default": true
+        },
+        "is_delete": {
+          "name": "is_delete",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",
@@ -78,6 +85,13 @@
           "nullsNotDistinct": false,
           "columns": [
             "username"
+          ]
+        },
+        "members_user_id_unique": {
+          "name": "members_user_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "user_id"
           ]
         }
       }

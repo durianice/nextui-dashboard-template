@@ -1,9 +1,24 @@
-import { create, deleteById, queryAll, updateById } from "@/server/db/members";
+import {
+  create,
+  deleteById,
+  queryAll,
+  queryByUserName,
+  updateById,
+} from "@/server/db/members";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const pageIndex = Number(searchParams.get("pageIndex")) ?? 1;
   const pageSize = Number(searchParams.get("pageSize")) ?? 10;
+  const username = searchParams.get("username") ?? "";
+  if (username) {
+    const { rows, total } = await queryByUserName(
+      pageIndex,
+      pageSize,
+      username
+    );
+    return Response.json({ list: rows, total });
+  }
   const { rows, total } = await queryAll(pageIndex, pageSize);
   return Response.json({ list: rows, total });
 }
@@ -24,7 +39,7 @@ export async function PUT(request: Request) {
     ...data,
   };
 
-  console.log(insertData, "PUT")
+  console.log(insertData, "PUT");
 
   delete insertData.id;
   delete insertData.createdAt;

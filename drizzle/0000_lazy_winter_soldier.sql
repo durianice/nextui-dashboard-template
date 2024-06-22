@@ -9,10 +9,12 @@ CREATE TABLE IF NOT EXISTS "members" (
 	"user_id" text NOT NULL,
 	"username" text NOT NULL,
 	"nick_name" text NOT NULL,
-	"expires_ts" integer DEFAULT 0 NOT NULL,
+	"expires_ts" bigint DEFAULT 0 NOT NULL,
 	"role" "user_role" DEFAULT 'USER' NOT NULL,
 	"is_active" boolean DEFAULT true,
+	"is_delete" boolean DEFAULT false,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "members_username_unique" UNIQUE("username")
+	CONSTRAINT "members_username_unique" UNIQUE("username"),
+	CONSTRAINT "members_user_id_unique" UNIQUE("user_id")
 );

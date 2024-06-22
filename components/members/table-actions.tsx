@@ -19,21 +19,21 @@ function TableActions({
   ctx,
 }: {
   row: Member;
-  ctx?: TableWrapperMethods | null;
+  ctx?: TableWrapperMethods<Member> | null;
 }) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   return (
     <div className="flex items-center gap-4 justify-center">
-      <div>
+      {/* <div>
         <Tooltip content="Details">
           <button onClick={() => console.info(row)}>
             <EyeIcon size={20} fill="#979797" />
           </button>
         </Tooltip>
-      </div>
+      </div> */}
       <div>
-        <UserForm<Member>
+        <UserForm
           mode="edit"
           onSuccess={async () => {
             if (ctx) {

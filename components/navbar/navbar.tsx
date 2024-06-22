@@ -1,14 +1,20 @@
-import { Input, Link, Navbar, NavbarContent } from "@nextui-org/react";
+import {
+  BreadcrumbItem,
+  Breadcrumbs,
+  Input,
+  Link,
+  Navbar,
+  NavbarContent,
+} from "@nextui-org/react";
 import React from "react";
 import { FeedbackIcon } from "../icons/navbar/feedback-icon";
-import { GithubIcon } from "../icons/navbar/github-icon";
 import { SupportIcon } from "../icons/navbar/support-icon";
 import { SearchIcon } from "../icons/searchicon";
 import { BurguerButton } from "./burguer-button";
 import { NotificationsDropdown } from "./notifications-dropdown";
 import { UserDropdown } from "./user-dropdown";
-import { HouseIcon } from "../icons/breadcrumb/house-icon";
 import { usePathname } from "next/navigation";
+import { HomeIcon } from "../icons/breadcrumb/home-icon";
 
 interface Props {
   children: React.ReactNode;
@@ -16,8 +22,9 @@ interface Props {
 
 export const NavbarWrapper = ({ children }: Props) => {
   const pathname = usePathname();
-  const displayPathname =
-    pathname === "/" ? "" : pathname.replaceAll("/", " / ");
+  const capitalized = (word: string) =>
+    word.charAt(0).toUpperCase() + word.slice(1);
+  const displayPathname = capitalized(pathname.split("/").pop() ?? "");
   return (
     <div className="relative flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
       <Navbar
@@ -62,15 +69,14 @@ export const NavbarWrapper = ({ children }: Props) => {
         </NavbarContent>
       </Navbar>
       {displayPathname && (
-        <ul className="flex lg:px-6 mt-6">
-          <li className="flex gap-2">
-            <HouseIcon />
-            <Link href={"/"}>
-              <span>Home</span>
-            </Link>
-            <span>{displayPathname}</span>
-          </li>
-        </ul>
+        <div className="flex lg:px-6 mt-6">
+          <Breadcrumbs>
+            <BreadcrumbItem href="/" startContent={<HomeIcon />}>
+              Home
+            </BreadcrumbItem>
+            <BreadcrumbItem href={pathname}>{displayPathname}</BreadcrumbItem>
+          </Breadcrumbs>
+        </div>
       )}
       <div className="lg:px-6 py-6 max-w-[95rem] mx-auto w-full flex flex-col gap-4">
         {children}
